@@ -1,0 +1,46 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senha     String
+  tipo      TipoUsuario @default(CLIENTE)
+  criadoEm  DateTime @default(now())
+}
+
+enum TipoUsuario {
+  ADMIN_GERAL         // Admin com todos os acessos
+  ADMIN_GERENTE       // Admin com acesso de gerente
+  ADMIN_ATENDIMENTO   // Admin com acesso para suporte (somente leitura)
+  PRODUTOR_GERENTE    // Produtor que gerencia os eventos
+  PRODUTOR_ATENDIMENTO // Produtor que só visualiza
+  CLIENTE             // Usuário que compra ingressos e participa de eventos
+}
+
+model Local {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  endereco  String
+  criadoEm  DateTime @default(now())
+
+  // Relacionamento com eventos
+  eventos   Evento[]  // Um local pode ter vários eventos
+}
+
+model Evento {
+  id        Int      @id @default(autoincrement())
+  titulo    String
+  descricao String
+  data      DateTime
+  local     Local     @relation(fields: [localId], references: [id])
+  localId   Int
+  criadoEm  DateTime  @default(now())
+}
